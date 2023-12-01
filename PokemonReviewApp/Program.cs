@@ -3,11 +3,17 @@ using PokemonReviewApp;
 using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Repository;
+using Serilog;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File("logs/.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 builder.Services.AddControllers();
 builder.Services.AddTransient<Seed>();
@@ -26,6 +32,8 @@ builder.Services.AddDbContext<DataContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 
